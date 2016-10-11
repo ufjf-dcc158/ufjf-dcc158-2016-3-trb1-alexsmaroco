@@ -101,7 +101,7 @@ function equacao(request,response) {
 				if(a == NaN || b == NaN || c == NaN) {
 					response.write("<p> Parametros invalidos! </p>")
 				} else {
-					response.write("<p> Resultado da equaçao: </p>")
+					response.write("<p> Resultado da equacao: </p>")
 					var delta = (b*b - 4*a*c)
 					
 					if(delta < 0) {
@@ -119,6 +119,31 @@ function equacao(request,response) {
 	}
 }
 
+function xadrez(request,response) {
+	response.writeHead(200,{"Content-Type": "text/html"})
+	response.write(criaTabuleiro(8))
+	response.end()
+}
+
+function criaTabuleiro(dimensao) {
+	var html = "<table width='" + 4*dimensao*dimensao + "' height=' " + 4*dimensao*dimensao + "' border='2'>"
+	
+	for(var linha=0; linha<dimensao;linha++) {
+		html = html + "<tr>"
+		for(var coluna=0;coluna<dimensao;coluna++) {
+			if(coluna%2==linha%2) {
+				html = html+"<td bgColor='white'/>"
+			} else {
+				html = html+"<td bgColor='black'/>"
+			}
+		}
+		html = html + "</tr>"
+	}
+	html = html + "</table>"
+	return html
+}
+
+exports.xadrez = xadrez
 exports.equacao = equacao
 exports.primos = primos
 exports.aleatorios = aleatorios
