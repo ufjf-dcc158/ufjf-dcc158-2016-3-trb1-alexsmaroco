@@ -121,20 +121,116 @@ function equacao(request,response) {
 
 function xadrez(request,response) {
 	response.writeHead(200,{"Content-Type": "text/html"})
-	response.write(criaTabuleiro(8))
+	var param = url.parse(request.url, true).query
+	var x = parseInt(param.X)
+	var y = parseInt(param.Y)
+	response.write(criaTabuleiro(8,x,y))
 	response.end()
 }
 
-function criaTabuleiro(dimensao) {
+function coordenada(x,y) {
+	this.x = x
+	this.y = y
+}
+
+function comparar2d(x1,y1, x2, y2) {
+	if(x1 == x2 && y1 == y2) return true
+	else return false
+}
+
+function marcar(pontos, x, y) {
+	for(var i=0; i < pontos.length; i++) {
+		if(pontos[i].x == x && pontos[i].y == y) return true
+	}
+	return false
+}
+
+function criaTabuleiro(dimensao, x, y) {
 	var html = "<table width='" + 4*dimensao*dimensao + "' height=' " + 4*dimensao*dimensao + "' border='2'>"
 	
+	var pontos = {
+		"movCimaEsq" : null,
+		"movCimaDir" : null,
+		"movBaixoEsq" : null,
+		"movBaixoDir" : null,
+		"movEsqCima" : null,
+		"movEsqBaixo" : null,
+		"movDirCima" : null,
+		"movDirBaixo" : null
+	}
+	
+	var vetorPontos = []
+	
+	
+	if(x != NaN && y != NaN) {
+		if(y-2 >= 0) {
+			if(x-1 >= 0) {
+				pontos.movCimaEsq = new coordenada(x-1,y-2)
+				vetorPontos.push(new coordenada(x-1,y-2))
+			}
+			if(x+1 < dimensao) {
+				pontos.movCimaDir = new coordenada(x+1,y-2)
+				vetorPontos.push(new coordenada(x+1,y-2))
+			}
+		}
+		if(y+2 < dimensao) {
+			if(x-1 >= 0) {
+				pontos.movBaixoEsq = new coordenada(x-1,y+2)
+				vetorPontos.push(new coordenada(x-1,y+2))
+			}
+			if(x+1 < dimensao) {
+				pontos.movBaixoDir = new coordenada(x+1,y+2)
+				vetorPontos.push(new coordenada(x+1,y+2))
+			}
+		}
+		if(x-2 >= 0) {
+			if(y-1 >= 0) {
+				pontos.movEsqBaixo = new coordenada(x-2,y-1)
+				vetorPontos.push(new coordenada(x-2,y-1))
+			}
+			if(y+1 < dimensao) {
+				pontos.movEsqCima = new coordenada(x-2, y+1)
+				vetorPontos.push(new coordenada(x-2,y+1))
+			}
+		}
+		if(x+2 < dimensao) {
+			if(y-1 >= 0) {
+				pontos.movDirBaixo = new coordenada(x+2,y-1)
+				vetorPontos.push(new coordenada(x+2,y-1))
+			}
+			if(y+1 < dimensao) {
+				pontos.movDirCima = new coordenada(x+2,y+1)
+				vetorPontos.push(new coordenada(x+2,y+1))
+			}
+		}
+	}
 	for(var linha=0; linha<dimensao;linha++) {
 		html = html + "<tr>"
+		var desenhaCavalo = false
+		var marcaMov = false
 		for(var coluna=0;coluna<dimensao;coluna++) {
+			
+			desenhaCavalo = comparar2d(x,y,linha,coluna)
+			marcaMov = marcar(vetorPontos,linha,coluna)
+			
 			if(coluna%2==linha%2) {
-				html = html+"<td bgColor='white'/>"
+				if(desenhaCavalo) {
+					html = html+"<td id bgColor='green'/>"
+					desenhaCavalo = false
+				} else if(marcaMov) {
+					html = html+"<td id bgColor='red'/>"
+				} else {
+					html = html+"<td id bgColor='white'/>"
+				}
 			} else {
-				html = html+"<td bgColor='black'/>"
+				if(desenhaCavalo) {
+					html = html+"<td id bgColor='green'/>"
+					desenhaCavalo = false
+				} else if(marcaMov) {
+					html = html+"<td id bgColor='red'/>"
+				} else {
+					html = html+"<td id bgColor='black'/>"
+				}
 			}
 		}
 		html = html + "</tr>"
