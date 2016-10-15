@@ -1,0 +1,9 @@
+{ 
+	"name": "Trb1",
+	"version": "1.0",
+	"description": "Projeto do trabalho 1 - DCC158",
+
+    "author": "Alex Maroco",
+    "email": "alexsmaroco@gmail.com",
+	"dependencies" : {} 
+}
