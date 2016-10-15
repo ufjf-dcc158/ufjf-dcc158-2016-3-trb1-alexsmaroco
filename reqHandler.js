@@ -1,13 +1,18 @@
 var url = require("url")
 var qs = require("querystring")
 
+function criaBtVoltar(destino) {
+	return "<p><a href='" + destino + "'><input type='button' value='Voltar'/></a></p>"
+}
+
 function listar(request,response) {
 	response.writeHead(200,{"Content-Type": "text/html"	})
 	response.write("<p><a href='sobre.html'> Sobre <a/></p>")
 	response.write("<p><a href='aleatorios.html'> Numeros aleatorios <a/></p>")
 	response.write("<p><a href='primos.html'> Numeros primos <a/></p>")
 	response.write("<p><a href='equacao.html'> Equacoes <a/></p>")
-	response.write("<p><a href='xadrez.html'> Xadrez <a/></p>")
+	response.write("<p><a href='xadrez.html'> Xadrez(html) <a/></p>")
+	response.write("<p><a href='xadrez.json'> Xadrez(json) <a/></p>")
 	response.end()
 }
 
@@ -16,7 +21,8 @@ function sobre(request,response) {
 	response.write("<p>Nome: Alex da Silva Maroco</p>")
 	response.write("<p>Matricula: 201235001</p>")
 	response.write("<p>Email: alexsmaroco@gmail.com</p>")
-	response.write("<p>Curso: Ciencia da Computação</p>")
+	response.write("<p>Curso: Ciencia da Computacao</p>")
+	response.write(criaBtVoltar("index.html"))
 	response.end()
 }
 
@@ -41,33 +47,39 @@ function aleatorios(request, response) {
 	}
 	response.write("<p>Numeros pares: " + listaPares.toString() + "</p>")
 	response.write("<p>Numeros impares: " + listaImpares.toString() + "</p>")
+	response.write(criaBtVoltar("index.html"))
 	response.end()
 }
 
 function primos(request,response) {
 	response.writeHead(200,{"Content-Type": "text/html"})
 	var param = url.parse(request.url, true).query
-	
-	var n1 = parseInt(param.N1)
-	var n2 = parseInt(param.N2)
-	var isPrimo = true
-	if( n1 == NaN || n2 == NaN || n1 >= n2 || n2 > 100) {
+	if(param.N1 == undefined || param.N2 == undefined) {
 		response.write("Intervalo invalido!")
-	} else {
-		response.write("<p>Primos no intervalo [" + n1 + "," + n2 + "]: </p>")
-		for(var i=n1; i<n2; i++) {
-			for(var j=2;j<i;j++) {
-				if(i%j==0) {
-					isPrimo = false
-					break
+	}
+	 else {
+		var n1 = parseInt(param.N1)
+		var n2 = parseInt(param.N2)
+		var isPrimo = true
+		if(n1 >= n2 || n2 > 100 || isNaN(n1) || isNaN(n2)) {
+			response.write("Intervalo invalido!")
+		} else {
+			response.write("<p>Primos no intervalo [" + n1 + "," + n2 + "]: </p>")
+			for(var i=n1; i<n2; i++) {
+				for(var j=2;j<i;j++) {
+					if(i%j==0) {
+						isPrimo = false
+						break
+					}
 				}
+				if(isPrimo) {
+					response.write(i + ",")
+				}
+				isPrimo = true
 			}
-			if(isPrimo) {
-				response.write(i + ",")
-			}
-			isPrimo = true
-		}
-   }
+   		}
+	}
+   response.write(criaBtVoltar("index.html"))
    response.end()
 }
 
@@ -81,6 +93,7 @@ function equacao(request,response) {
 		response.write("<p> Valor de c: <input type='text' name='varC'/></p>")
 		response.write("<p> <input type='submit'/></p>")
 		response.write("</form>")
+		response.write(criaBtVoltar("index.html"))
 		response.end()
 	} else if(request.method == "POST") {
 		var stream = ""
@@ -98,7 +111,7 @@ function equacao(request,response) {
 				a = parseFloat(a)
 				b = parseFloat(b)
 				c = parseFloat(c)
-				if(a == NaN || b == NaN || c == NaN) {
+				if(isNaN(a) || isNaN(b) || isNaN(c)) {
 					response.write("<p> Parametros invalidos! </p>")
 				} else {
 					response.write("<p> Resultado da equacao: </p>")
@@ -111,134 +124,50 @@ function equacao(request,response) {
 						var x2 = ((0-Math.sqrt(delta) - b)/(2*a))
 						response.write("<p> x1 = " + x1 + "</p>")
 						response.write("<p> x2 = " + x2 + "</p>")
-						response.end()
 					}
 				}
 			}
+			response.write(criaBtVoltar("equacao.html"))
+			response.end()
 		})
 	}
 }
 
+
 function xadrez(request,response) {
 	response.writeHead(200,{"Content-Type": "text/html"})
 	var param = url.parse(request.url, true).query
-	var x = parseInt(param.X)
-	var y = parseInt(param.Y)
-	response.write(criaTabuleiro(8,x,y))
+	var x
+	var y
+	if(param.X != undefined || param.Y != undefined) {
+		var x = parseInt(param.X)
+		var y = parseInt(param.Y)
+	}
+	var tabXadrez = require("./tabuleiroXadrez.js")
+	response.write(tabXadrez.desenhar(8,x,y))
+	response.write(criaBtVoltar("index.html"))
 	response.end()
 }
 
-function coordenada(x,y) {
-	this.x = x
-	this.y = y
-}
-
-function comparar2d(x1,y1, x2, y2) {
-	if(x1 == x2 && y1 == y2) return true
-	else return false
-}
-
-function marcar(pontos, x, y) {
-	for(var i=0; i < pontos.length; i++) {
-		if(pontos[i].x == x && pontos[i].y == y) return true
-	}
-	return false
-}
-
-function criaTabuleiro(dimensao, x, y) {
-	var html = "<table width='" + 4*dimensao*dimensao + "' height=' " + 4*dimensao*dimensao + "' border='2'>"
+function xadrezjson(request,response) {
+	response.writeHead(200,{"Content-Type": "application/json"})
+	var param = url.parse(request.url, true).query
+	var x
+	var y
 	
-	var pontos = {
-		"movCimaEsq" : null,
-		"movCimaDir" : null,
-		"movBaixoEsq" : null,
-		"movBaixoDir" : null,
-		"movEsqCima" : null,
-		"movEsqBaixo" : null,
-		"movDirCima" : null,
-		"movDirBaixo" : null
+	if(param.X != undefined || param.Y != undefined) {
+		var x = parseInt(param.X)
+		var y = parseInt(param.Y)
 	}
 	
-	var vetorPontos = []
-	
-	
-	if(x != NaN && y != NaN) {
-		if(y-2 >= 0) {
-			if(x-1 >= 0) {
-				pontos.movCimaEsq = new coordenada(x-1,y-2)
-				vetorPontos.push(new coordenada(x-1,y-2))
-			}
-			if(x+1 < dimensao) {
-				pontos.movCimaDir = new coordenada(x+1,y-2)
-				vetorPontos.push(new coordenada(x+1,y-2))
-			}
-		}
-		if(y+2 < dimensao) {
-			if(x-1 >= 0) {
-				pontos.movBaixoEsq = new coordenada(x-1,y+2)
-				vetorPontos.push(new coordenada(x-1,y+2))
-			}
-			if(x+1 < dimensao) {
-				pontos.movBaixoDir = new coordenada(x+1,y+2)
-				vetorPontos.push(new coordenada(x+1,y+2))
-			}
-		}
-		if(x-2 >= 0) {
-			if(y-1 >= 0) {
-				pontos.movEsqBaixo = new coordenada(x-2,y-1)
-				vetorPontos.push(new coordenada(x-2,y-1))
-			}
-			if(y+1 < dimensao) {
-				pontos.movEsqCima = new coordenada(x-2, y+1)
-				vetorPontos.push(new coordenada(x-2,y+1))
-			}
-		}
-		if(x+2 < dimensao) {
-			if(y-1 >= 0) {
-				pontos.movDirBaixo = new coordenada(x+2,y-1)
-				vetorPontos.push(new coordenada(x+2,y-1))
-			}
-			if(y+1 < dimensao) {
-				pontos.movDirCima = new coordenada(x+2,y+1)
-				vetorPontos.push(new coordenada(x+2,y+1))
-			}
-		}
-	}
-	for(var linha=0; linha<dimensao;linha++) {
-		html = html + "<tr>"
-		var desenhaCavalo = false
-		var marcaMov = false
-		for(var coluna=0;coluna<dimensao;coluna++) {
-			
-			desenhaCavalo = comparar2d(x,y,linha,coluna)
-			marcaMov = marcar(vetorPontos,linha,coluna)
-			
-			if(coluna%2==linha%2) {
-				if(desenhaCavalo) {
-					html = html+"<td id bgColor='green'/>"
-					desenhaCavalo = false
-				} else if(marcaMov) {
-					html = html+"<td id bgColor='red'/>"
-				} else {
-					html = html+"<td id bgColor='white'/>"
-				}
-			} else {
-				if(desenhaCavalo) {
-					html = html+"<td id bgColor='green'/>"
-					desenhaCavalo = false
-				} else if(marcaMov) {
-					html = html+"<td id bgColor='red'/>"
-				} else {
-					html = html+"<td id bgColor='black'/>"
-				}
-			}
-		}
-		html = html + "</tr>"
-	}
-	html = html + "</table>"
-	return html
+	var tabXadrez = require("./tabuleiroXadrez.js")
+	var obj = tabXadrez.montarjson(8,x,y)
+	response.write(obj)
+	response.end()
 }
 
+
+exports.xadrezjson = xadrezjson
 exports.xadrez = xadrez
 exports.equacao = equacao
 exports.primos = primos
