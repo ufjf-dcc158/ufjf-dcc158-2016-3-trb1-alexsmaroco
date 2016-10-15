@@ -7,6 +7,7 @@ var reqMap = {
 	"/primos.html" : handler.primos,
 	"/equacao.html" : handler.equacao,
 	"/xadrez.html" : handler.xadrez,
+	"/xadrez.json" : handler.xadrezjson,
 	"/notfound.html" : handler.notfound
 }
 
