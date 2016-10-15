@@ -1,7 +1,7 @@
 {
   "name": "ufjf-dcc158-2016-3-trb1-alexsmaroco",
   "version": "1.0.0",
-  "description": "",
+  "description": "Trabalho 1 - Laboratório de Programação VI",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
