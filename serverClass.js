@@ -2,7 +2,7 @@ var http = require("http")
 var url = require("url")
 
 function start(roteador) {
-	http.createServer(onRequest).listen(8000)
+	http.createServer(onRequest)..listen(process.env.PORT || 8000)
 	console.log("Ouvindo conexoes na porta 8000")
 
 	function onRequest(request,response) {
